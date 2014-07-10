@@ -42,7 +42,7 @@ object ApplicationBuild extends Build with UniversalKeys {
       EclipseKeys.skipParents in ThisBuild := false
     ) ++ (
       // ask scalajs project to put its outputs in scalajsOutputDir
-      Seq(packageExternalDepsJS, packageInternalDepsJS, packageExportedProductsJS, packageLauncher, fastOptJS, fullOptJS) map { packageJSKey =>
+      Seq(packageExternalDepsJS, packageInternalDepsJS, packageExportedProductsJS, packageLauncher, fastOptJS, fullOptJS, packageJSDependencies) map { packageJSKey =>
         crossTarget in (scalajs, Compile, packageJSKey) := scalajsOutputDir.value
       }
     ) ++ sharedDirectorySettings
@@ -54,7 +54,13 @@ object ApplicationBuild extends Build with UniversalKeys {
       scalaVersion := Versions.scala,
       persistLauncher := true,
       persistLauncher in Test := false,
-      libraryDependencies ++= Dependencies.scalajs
+      libraryDependencies ++= Dependencies.scalajs,
+      resolvers += bintray.Opts.resolver.repo("japgolly", "scala"),
+      libraryDependencies += "japgolly.scalajs.react" %%% "scalajs-react" % "0.1.0",
+      jsDependencies ++= Seq(
+        "org.webjars" % "react" % "0.10.0" / "react-with-addons.min.js"
+      ),  
+      skip in packageJSDependencies := false
     ) ++ sharedDirectorySettings
 
   lazy val sharedScalaSettings =
